@@ -11,7 +11,7 @@
   ╠══════════════════════════════════════════════════════════════╣
   ║  1. Cole sua SUPABASE_URL e SUPABASE_ANON_KEY abaixo        ║
   ║  2. Troque os nomes dos noivos (busque "Ana & Carlo")        ║
-  ║  3. Troque a data do casamento (busque "14 de novembro de 2026") ║
+  ║  3. Troque a data do casamento (busque "14 de março de 2025") ║
   ╠══════════════════════════════════════════════════════════════╣
   ║  SQL para criar a tabela no Supabase:                        ║
   ║                                                              ║
@@ -34,6 +34,39 @@
   ║                                                              ║
   ║  create policy "qualquer um pode inserir um presente"        ║
   ║    on presentes for insert with check (true);                ║
+  ╠══════════════════════════════════════════════════════════════╣
+  ║  SQL para correspondência aproximada (ex.: "panelas" casa     ║
+  ║  com "jogo de panelas"). Rode isso TAMBÉM no SQL Editor:      ║
+  ║                                                              ║
+  ║  create extension if not exists pg_trgm;                      ║
+  ║                                                              ║
+  ║  create index idx_presente_trgm                              ║
+  ║    on presentes using gin (presente_normalizado gin_trgm_ops);║
+  ║                                                              ║
+  ║  create or replace function buscar_presente_parecido(termo text)║
+  ║  returns table (presente text, nome_convidado text, similaridade real)║
+  ║  language sql stable as $$                                   ║
+  ║    select presente, nome_convidado,                           ║
+  ║           greatest(                                           ║
+  ║             similarity(presente_normalizado, termo),          ║
+  ║             word_similarity(termo, presente_normalizado)      ║
+  ║           ) as similaridade                                   ║
+  ║    from presentes                                             ║
+  ║    where presente_normalizado ilike '%' || termo || '%'       ║
+  ║       or termo ilike '%' || presente_normalizado || '%'       ║
+  ║       or word_similarity(termo, presente_normalizado) > 0.5   ║
+  ║    order by similaridade desc, created_at asc                ║
+  ║    limit 20;                                                  ║
+  ║  $$;                                                          ║
+  ║                                                              ║
+  ║  grant execute on function buscar_presente_parecido(text)    ║
+  ║    to anon;                                                   ║
+  ║                                                              ║
+  ║  word_similarity testa se o termo bate bem com UM PEDAÇO     ║
+  ║  do presente salvo (não a string toda) — funciona melhor     ║
+  ║  pra termos curtos tipo "mesa", "boi", "ps5" sem precisar    ║
+  ║  bloquear busca curta. 0.5 = sensibilidade dessa parte;      ║
+  ║  mais alto = mais exigente, mais baixo = mais solto.         ║
   ╚══════════════════════════════════════════════════════════════╝
   -->
 
@@ -314,6 +347,28 @@
       line-height: 1.5;
     }
     .aviso-ja-escolhido strong { color: var(--blue); }
+    .lista-doadores {
+      list-style: none;
+      margin-top: .6rem;
+      padding-top: .6rem;
+      border-top: 1px solid var(--yellow-dark);
+      display: flex;
+      flex-direction: column;
+      gap: .35rem;
+    }
+    .lista-doadores li {
+      font-size: .85rem;
+      color: var(--ink);
+    }
+    .lista-doadores li strong { color: var(--blue); }
+    .lista-doadores li span { color: var(--muted); }
+    .lista-doadores-titulo {
+      font-size: .75rem;
+      font-weight: 600;
+      color: #92710A;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
     .estado-ja-escolhido > p {
       font-size: .88rem;
       color: var(--muted);
@@ -403,7 +458,7 @@
   <!-- CABEÇALHO -->
   <header class="site-header">
     <h1 class="couple-names">Ana <span class="ampersand">&amp;</span> Carlo</h1>
-    <p class="wedding-date">14 de novembro de 2026</p>
+    <p class="wedding-date">14 de março de 2025</p>
     <p class="wedding-tagline">Sua presença já é o maior presente — mas se quiser nos mimar…</p>
   </header>
 
@@ -478,7 +533,8 @@
       <div class="resultado estado-ja-escolhido" id="estado-ja-escolhido" role="status" aria-live="polite">
         <div class="aviso-ja-escolhido">
           <p class="aviso-label">Presente já na lista</p>
-          <p><strong id="nome-anterior"></strong> já disse que vai dar <strong id="presente-repetido"></strong>.</p>
+          <p id="aviso-texto"></p>
+          <ul class="lista-doadores" id="lista-doadores"></ul>
         </div>
         <p>Você pode escolher outro presente ou confirmar que vai dar o mesmo mesmo assim.</p>
         <div class="botoes-duplos">
@@ -544,8 +600,8 @@
 
     const sucessoNome         = document.getElementById('sucesso-nome');
     const sucessoPresenteLabel = document.getElementById('sucesso-presente-label');
-    const nomeAnterior        = document.getElementById('nome-anterior');
-    const presenteRepetido    = document.getElementById('presente-repetido');
+    const avisoTexto      = document.getElementById('aviso-texto');
+    const listaDoadores   = document.getElementById('lista-doadores');
 
     const btnNovo          = document.getElementById('btn-novo-presente');
     const btnEscolherOutro = document.getElementById('btn-escolher-outro');
@@ -591,6 +647,33 @@
       dadosPendentes = null;
     }
 
+    /* ─── Monta o aviso de "já escolhido": frase do 1º + lista do resto ─ */
+    function preencherAvisoJaEscolhido(data) {
+      const [primeiro, ...resto] = data;
+
+      avisoTexto.textContent = `${primeiro.nome_convidado} já disse que vai dar ${primeiro.presente}.`;
+
+      listaDoadores.innerHTML = '';
+      if (resto.length > 0) {
+        const titulo = document.createElement('li');
+        titulo.className = 'lista-doadores-titulo';
+        titulo.textContent = resto.length === 1
+          ? 'E mais 1 pessoa escolheu algo parecido:'
+          : `E mais ${resto.length} pessoas escolheram algo parecido:`;
+        listaDoadores.appendChild(titulo);
+
+        resto.forEach(({ nome_convidado, presente }) => {
+          const li = document.createElement('li');
+          const nome = document.createElement('strong');
+          nome.textContent = nome_convidado;
+          const texto = document.createElement('span');
+          texto.textContent = ` — ${presente}`;
+          li.append(nome, texto);
+          listaDoadores.appendChild(li);
+        });
+      }
+    }
+
     /* ─── Inserção no Supabase ───────────────────────────────── */
     async function inserirPresente({ presente, presente_normalizado, nome_convidado, mensagem }) {
       const { error } = await supabaseClient
@@ -617,20 +700,15 @@
 
       setLoading(true);
       try {
-        // Busca se alguém já escolheu esse presente
+        // Busca se alguém já escolheu um presente parecido com esse (correspondência aproximada)
         const { data, error } = await supabaseClient
-          .from('presentes')
-          .select('nome_convidado, presente')
-          .eq('presente_normalizado', presente_normalizado)
-          .order('created_at', { ascending: true })
-          .limit(1);
+          .rpc('buscar_presente_parecido', { termo: presente_normalizado });
 
         if (error) throw error;
 
         if (data && data.length > 0) {
-          // Presente já escolhido
-          nomeAnterior.textContent = data[0].nome_convidado;
-          presenteRepetido.textContent = data[0].presente;
+          // Presente já escolhido (por uma ou mais pessoas)
+          preencherAvisoJaEscolhido(data);
           dadosPendentes = { presente, presente_normalizado, nome_convidado: nome, mensagem };
           mostrarResultado('estado-ja-escolhido');
         } else {
