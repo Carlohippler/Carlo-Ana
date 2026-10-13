@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lista de Presentes — Ana & Carlo</title>
+  <title>Lista de Presentes — Ana &amp; Carlo</title>
 
   <!--
   ╔══════════════════════════════════════════════════════════════╗
@@ -11,7 +11,7 @@
   ╠══════════════════════════════════════════════════════════════╣
   ║  1. Cole sua SUPABASE_URL e SUPABASE_ANON_KEY abaixo        ║
   ║  2. Troque os nomes dos noivos (busque "Ana & Carlo")        ║
-  ║  3. Troque a data do casamento (busque "14 de novembro de 2026") ║
+  ║  3. Troque a data do casamento (busque "14 de março de 2025") ║
   ╠══════════════════════════════════════════════════════════════╣
   ║  SQL para criar a tabela no Supabase:                        ║
   ║                                                              ║
@@ -75,27 +75,35 @@
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
 
   <style>
-    /* ─── Tokens ─────────────────────────────────────────────── */
-    :root {
-      --blue:        #1E3A8A;
-      --blue-light:  #3B5BDB;
-      --blue-pale:   #EEF2FF;
-      --yellow:      #FDF6B2;
-      --yellow-dark: #F5E27A;
-      --white:       #FFFFFF;
-      --snow:        #FAFAFA;
-      --ink:         #1F2430;
-      --muted:       #6B7280;
-      --radius-sm:   10px;
-      --radius-lg:   20px;
-      --shadow:      0 4px 24px rgba(30,58,138,.08), 0 1px 4px rgba(30,58,138,.06);
-      --transition:  250ms cubic-bezier(.4,0,.2,1);
+    :root  {
+      --blue: #1E3A8A;
+      --blue-light: #3B5BDB;
+      --blue-pale: #EEF2FF;
+      --yellow: #FFF8CC;
+      --yellow-dark: #E8D46A;
+      --green: #16794A;
+      --green-pale: #EAF8F0;
+      --red: #A63D40;
+      --red-pale: #FFF0F0;
+      --white: #FFFFFF;
+      --snow: #FAFAFA;
+      --ink: #1F2430;
+      --muted: #687080;
+      --border: #D1D8F0;
+      --radius-sm: 11px;
+      --radius-lg: 20px;
+      --shadow: 0 6px 28px rgba(30,58,138,.09), 0 1px 4px rgba(30,58,138,.05);
+      --transition: 220ms cubic-bezier(.4,0,.2,1);
     }
-
-    /* ─── Reset ──────────────────────────────────────────────── */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body {
+    *, *::before, *::after  {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html  {
+      scroll-behavior: smooth;
+    }
+    body  {
       font-family: 'Inter', system-ui, sans-serif;
       background: var(--snow);
       color: var(--ink);
@@ -103,400 +111,507 @@
       display: flex;
       flex-direction: column;
     }
-
-    /* ─── Header ─────────────────────────────────────────────── */
-    .site-header {
+    button, input, textarea  {
+      font: inherit;
+    }
+    /* ─── Cabeçalho ─────────────────────────────────────────── */
+    .site-header  {
       background: var(--white);
       border-bottom: 1px solid #E8EBF4;
-      padding: 2.5rem 1.5rem 2rem;
+      padding: 2.25rem 1.25rem 1.9rem;
       text-align: center;
     }
-    .couple-names {
+    .couple-names  {
       font-family: 'Cormorant Garamond', Georgia, serif;
-      font-size: clamp(2.4rem, 7vw, 4.2rem);
+      font-size: clamp(2.5rem, 10vw, 4.2rem);
       font-weight: 500;
       letter-spacing: -.01em;
       color: var(--blue);
-      line-height: 1.1;
+      line-height: 1.05;
     }
-    .couple-names .ampersand {
+    .couple-names .ampersand  {
       font-style: italic;
       font-weight: 400;
       color: var(--blue-light);
     }
-    .wedding-date {
-      margin-top: .6rem;
-      font-size: .875rem;
-      font-weight: 500;
-      letter-spacing: .08em;
+    .wedding-date  {
+      margin-top: .55rem;
+      font-size: .78rem;
+      font-weight: 600;
+      letter-spacing: .1em;
       color: var(--muted);
       text-transform: uppercase;
     }
-    .wedding-tagline {
-      margin-top: .5rem;
+    .wedding-tagline  {
+      margin: .55rem auto 0;
+      max-width: 500px;
       font-family: 'Cormorant Garamond', Georgia, serif;
       font-style: italic;
       font-size: 1.1rem;
       color: var(--blue);
-      opacity: .75;
+      opacity: .8;
     }
-
-    /* ─── Main ───────────────────────────────────────────────── */
-    main {
+    /* ─── Conteúdo ──────────────────────────────────────────── */
+    main  {
       flex: 1;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: center;
-      padding: 2.5rem 1.25rem 3rem;
+      padding: 2rem 1rem 3rem;
     }
-
-    /* ─── Card ───────────────────────────────────────────────── */
-    .card {
+    .card  {
       width: 100%;
-      max-width: 480px;
+      max-width: 500px;
       background: var(--white);
       border-radius: var(--radius-lg);
       box-shadow: var(--shadow);
       overflow: hidden;
     }
-    .card-body {
-      padding: 2rem 1.75rem 2rem;
+    .card-body  {
+      padding: 1.75rem 1.5rem 1.8rem;
     }
-    .card-title {
+    .card-title  {
       font-family: 'Cormorant Garamond', Georgia, serif;
-      font-size: 1.55rem;
+      font-size: 1.7rem;
       font-weight: 500;
       color: var(--blue);
-      margin-bottom: .25rem;
+      margin-bottom: .35rem;
     }
-    .card-subtitle {
-      font-size: .85rem;
+    .card-subtitle  {
+      font-size: .88rem;
       color: var(--muted);
-      margin-bottom: 1.75rem;
-      line-height: 1.5;
+      line-height: 1.6;
+      margin-bottom: 1.2rem;
     }
-
-    /* ─── Form ───────────────────────────────────────────────── */
-    .field { margin-bottom: 1.1rem; }
-    .field:last-of-type { margin-bottom: 0; }
-    label {
+    /* ─── Como funciona ────────────────────────────────────── */
+    .how-it-works  {
+      background: var(--blue-pale);
+      border-radius: 13px;
+      padding: 1rem 1rem 1.05rem;
+      margin-bottom: 1.45rem;
+    }
+    .how-title  {
+      font-size: .75rem;
+      font-weight: 700;
+      letter-spacing: .05em;
+      color: var(--blue);
+      margin-bottom: .7rem;
+    }
+    .steps  {
+      display: grid;
+      gap: .55rem;
+      list-style: none;
+    }
+    .step  {
+      display: flex;
+      align-items: flex-start;
+      gap: .55rem;
+      font-size: .81rem;
+      line-height: 1.4;
+    }
+    .step-number  {
+      width: 22px;
+      height: 22px;
+      flex: 0 0 22px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--blue);
+      color: var(--white);
+      font-size: .69rem;
+      font-weight: 700;
+      margin-top: -1px;
+    }
+    /* ─── Formulário ────────────────────────────────────────── */
+    .field  {
+      margin-bottom: 1.05rem;
+    }
+    .field:last-of-type  {
+      margin-bottom: 0;
+    }
+    label  {
       display: block;
-      font-size: .8rem;
-      font-weight: 600;
+      font-size: .81rem;
+      font-weight: 700;
       color: var(--ink);
-      margin-bottom: .4rem;
-      letter-spacing: .02em;
+      margin-bottom: .42rem;
     }
-    .optional-tag {
+    .optional-tag  {
       font-weight: 400;
       color: var(--muted);
-      margin-left: .3rem;
+      margin-left: .25rem;
     }
-    input[type="text"],
-    textarea {
+    input[type="text"],     textarea  {
       width: 100%;
-      padding: .7rem .9rem;
-      border: 1.5px solid #D1D8F0;
+      padding: .78rem .9rem;
+      border: 1.5px solid var(--border);
       border-radius: var(--radius-sm);
-      font-family: inherit;
-      font-size: .95rem;
+      font-size: .93rem;
       color: var(--ink);
       background: var(--white);
       transition: border-color var(--transition), box-shadow var(--transition);
       outline: none;
       -webkit-appearance: none;
     }
-    input[type="text"]:focus,
-    textarea:focus {
+    input[type="text"]:focus,     textarea:focus  {
       border-color: var(--blue-light);
-      box-shadow: 0 0 0 3px rgba(59,91,219,.15);
+      box-shadow: 0 0 0 3px rgba(59,91,219,.13);
     }
-    input::placeholder, textarea::placeholder { color: var(--muted); }
-    textarea {
+    input::placeholder,     textarea::placeholder  {
+      color: #7B8494;
+    }
+    textarea  {
       resize: vertical;
-      min-height: 78px;
+      min-height: 80px;
       line-height: 1.5;
     }
-
-    /* ─── Buttons ────────────────────────────────────────────── */
-    .btn {
+    .field-help  {
+      font-size: .72rem;
+      line-height: 1.45;
+      color: var(--muted);
+      margin-top: .38rem;
+    }
+    /* ─── Botões ────────────────────────────────────────────── */
+    .btn  {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: .5rem;
-      padding: .75rem 1.5rem;
-      min-height: 44px;
-      border: none;
+      gap: .45rem;
+      min-height: 46px;
+      padding: .78rem 1rem;
+      border: 0;
       border-radius: var(--radius-sm);
-      font-family: inherit;
-      font-size: .9rem;
+      font-size: .88rem;
       font-weight: 600;
       cursor: pointer;
-      transition: background var(--transition), transform var(--transition), opacity var(--transition);
       text-decoration: none;
+      transition: background var(--transition), transform var(--transition), opacity var(--transition);
     }
-    .btn:active { transform: scale(.98); }
-    .btn:focus-visible { outline: 3px solid var(--blue-light); outline-offset: 3px; }
-    .btn:disabled { opacity: .55; cursor: not-allowed; }
-
-    .btn-primary {
+    .btn:active  {
+      transform: scale(.985);
+    }
+    .btn:focus-visible  {
+      outline: 3px solid var(--blue-light);
+      outline-offset: 3px;
+    }
+    .btn:disabled  {
+      opacity: .6;
+      cursor: not-allowed;
+    }
+    .btn-primary  {
       width: 100%;
-      margin-top: 1.4rem;
+      margin-top: 1.25rem;
       background: var(--blue);
       color: var(--white);
     }
-    .btn-primary:hover:not(:disabled) { background: var(--blue-light); }
-
-    .btn-secondary {
+    .btn-primary:hover:not(:disabled)  {
+      background: var(--blue-light);
+    }
+    .btn-secondary  {
       background: var(--yellow);
       color: var(--ink);
       border: 1.5px solid var(--yellow-dark);
     }
-    .btn-secondary:hover:not(:disabled) { background: var(--yellow-dark); }
-
-    .btn-ghost {
-      background: transparent;
+    .btn-secondary:hover:not(:disabled)  {
+      background: #F7EFA6;
+    }
+    .btn-ghost  {
+      background: var(--white);
       color: var(--blue);
-      border: 1.5px solid #D1D8F0;
+      border: 1.5px solid var(--border);
     }
-    .btn-ghost:hover:not(:disabled) { background: var(--blue-pale); border-color: var(--blue-light); }
-
-    /* ─── Resultado ──────────────────────────────────────────── */
-    .resultado {
-      display: none;
-      opacity: 0;
-      transform: translateY(6px);
-      transition: opacity var(--transition), transform var(--transition);
+    .btn-ghost:hover:not(:disabled)  {
+      background: var(--blue-pale);
+      border-color: var(--blue-light);
     }
-    .resultado.visible {
-      display: block;
-      animation: fadeSlide var(--transition) forwards;
+    .form-note  {
+      font-size: .72rem;
+      line-height: 1.45;
+      text-align: center;
+      color: var(--muted);
+      margin-top: .7rem;
     }
-    @keyframes fadeSlide {
-      from { opacity: 0; transform: translateY(6px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Divider dentro do card */
-    .card-divider {
+    /* ─── Resultado ─────────────────────────────────────────── */
+    .card-divider  {
       height: 1px;
       background: #E8EBF4;
-      margin: 0 1.75rem;
     }
-
-    /* ─── Estado: Sucesso ────────────────────────────────────── */
-    .estado-sucesso {
-      padding: 1.75rem;
-      text-align: center;
+    .resultado  {
+      display: none;
+      padding: 1.65rem 1.5rem 1.75rem;
+      animation: fadeSlide var(--transition) forwards;
     }
-    .success-icon {
-      width: 52px; height: 52px;
-      background: var(--blue-pale);
+    .resultado.visible  {
+      display: block;
+    }
+    @keyframes fadeSlide  {
+      from  {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to  {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .result-icon  {
+      width: 52px;
+      height: 52px;
       border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      margin: 0 auto 1rem;
-      color: var(--blue);
-      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto .9rem;
+      font-size: 1.45rem;
+      font-weight: 600;
     }
-    .estado-sucesso h2 {
+    .success-icon  {
+      background: var(--green-pale);
+      color: var(--green);
+    }
+    .warning-icon  {
+      background: var(--yellow);
+      color: #8A6C00;
+    }
+    .error-icon  {
+      background: var(--red-pale);
+      color: var(--red);
+    }
+    .resultado h2  {
       font-family: 'Cormorant Garamond', Georgia, serif;
-      font-size: 1.4rem;
+      font-size: 1.55rem;
       font-weight: 500;
       color: var(--blue);
-      margin-bottom: .4rem;
+      text-align: center;
+      margin-bottom: .45rem;
     }
-    .estado-sucesso p {
-      font-size: .9rem;
-      color: var(--muted);
+    .resultado > p  {
+      font-size: .87rem;
       line-height: 1.6;
-      margin-bottom: 1.25rem;
+      color: var(--muted);
+      text-align: center;
     }
-    .success-presente-nome {
-      display: inline-block;
+    .success-presente-nome  {
+      display: block;
       background: var(--blue-pale);
       color: var(--blue);
-      border-radius: 6px;
-      padding: .25rem .75rem;
+      border-radius: 8px;
+      padding: .6rem .75rem;
       font-weight: 600;
-      font-size: .95rem;
-      margin-bottom: 1.1rem;
+      font-size: .92rem;
+      text-align: center;
+      margin: .85rem 0 1rem;
+      overflow-wrap: anywhere;
     }
-
-    /* ─── Estado: Já escolhido ───────────────────────────────── */
-    .estado-ja-escolhido {
-      padding: 1.75rem;
-    }
-    .aviso-ja-escolhido {
+    /* ─── Aviso de duplicidade ──────────────────────────────── */
+    .aviso-ja-escolhido  {
       background: var(--yellow);
       border: 1.5px solid var(--yellow-dark);
-      border-radius: var(--radius-sm);
-      padding: 1rem 1.1rem;
-      margin-bottom: 1.25rem;
+      border-radius: 12px;
+      padding: 1rem 1rem 1.05rem;
+      margin-bottom: 1rem;
     }
-    .aviso-ja-escolhido .aviso-label {
-      font-size: .75rem;
-      font-weight: 600;
-      letter-spacing: .06em;
-      color: #92710A;
-      text-transform: uppercase;
-      margin-bottom: .35rem;
-    }
-    .aviso-ja-escolhido p {
-      font-size: .9rem;
-      color: var(--ink);
-      line-height: 1.5;
-    }
-    .aviso-ja-escolhido strong { color: var(--blue); }
-    .lista-doadores {
-      list-style: none;
-      margin-top: .6rem;
-      padding-top: .6rem;
-      border-top: 1px solid var(--yellow-dark);
-      display: flex;
-      flex-direction: column;
-      gap: .35rem;
-    }
-    .lista-doadores li {
-      font-size: .85rem;
-      color: var(--ink);
-    }
-    .lista-doadores li strong { color: var(--blue); }
-    .lista-doadores li span { color: var(--muted); }
-    .lista-doadores-titulo {
-      font-size: .75rem;
-      font-weight: 600;
-      color: #92710A;
-      text-transform: uppercase;
+    .aviso-label  {
+      font-size: .74rem;
+      font-weight: 700;
       letter-spacing: .04em;
+      color: #806500;
+      text-transform: uppercase;
+      margin-bottom: .5rem;
     }
-    .estado-ja-escolhido > p {
+    .aviso-ja-escolhido p  {
       font-size: .88rem;
-      color: var(--muted);
-      margin-bottom: 1.1rem;
-      line-height: 1.5;
-    }
-    .botoes-duplos {
-      display: flex;
-      gap: .75rem;
-      flex-direction: column;
-    }
-    @media (min-width: 640px) {
-      .botoes-duplos { flex-direction: row; }
-      .botoes-duplos .btn { flex: 1; }
-    }
-
-    /* ─── Estado: Erro ───────────────────────────────────────── */
-    .estado-erro {
-      padding: 1.75rem;
-      text-align: center;
-    }
-    .erro-icon {
-      font-size: 1.75rem;
-      margin-bottom: .75rem;
-    }
-    .estado-erro h2 {
-      font-family: 'Cormorant Garamond', Georgia, serif;
-      font-size: 1.3rem;
-      font-weight: 500;
+      line-height: 1.55;
       color: var(--ink);
-      margin-bottom: .4rem;
     }
-    .estado-erro p {
-      font-size: .88rem;
-      color: var(--muted);
-      line-height: 1.6;
-      margin-bottom: 1.1rem;
+    .aviso-ja-escolhido strong  {
+      color: var(--blue);
     }
-
+    .presente-encontrado  {
+      display: block;
+      margin: .7rem 0;
+      padding: .65rem .75rem;
+      background: rgba(255,255,255,.58);
+      border-radius: 8px;
+      color: var(--blue);
+      font-size: .92rem;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+    .explicacao-duplicado  {
+      font-size: .82rem !important;
+      color: var(--ink) !important;
+    }
+    .botoes-duplos  {
+      display: grid;
+      gap: .65rem;
+    }
+    .botoes-duplos .btn  {
+      width: 100%;
+    }
+    /* ─── Erro ──────────────────────────────────────────────── */
+    .estado-erro p  {
+      margin-bottom: 1rem;
+    }
+    .erro-detalhe  {
+      font-size: .73rem !important;
+      color: var(--muted) !important;
+      margin-top: -.4rem;
+      margin-bottom: 1rem;
+    }
     /* ─── Spinner ────────────────────────────────────────────── */
-    .spinner {
-      width: 18px; height: 18px;
-      border: 2.5px solid rgba(255,255,255,.4);
+    .spinner  {
+      width: 17px;
+      height: 17px;
+      border: 2.5px solid rgba(255,255,255,.38);
       border-top-color: #fff;
       border-radius: 50%;
       animation: spin .7s linear infinite;
       flex-shrink: 0;
     }
-    /* Spinner dentro de botão amarelo (btn-secondary) usa tinta escura */
-    .btn-secondary .spinner {
-      border-color: rgba(31,36,48,.25);
+    .btn-secondary .spinner  {
+      border-color: rgba(31,36,48,.22);
       border-top-color: var(--ink);
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* ─── Reduced motion ─────────────────────────────────────── */
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        animation-duration: .01ms !important;
-        transition-duration: .01ms !important;
+    @keyframes spin  {
+      to  {
+        transform: rotate(360deg);
       }
     }
-
-    /* ─── Reset de btn-primary dentro dos estados de resultado ── */
-    /* btn-primary herda margin-top e width:100% do formulário,
-       mas nos estados de resultado os botões têm layout próprio  */
-    .estado-sucesso .btn-primary,
-    .estado-erro .btn-primary {
-      width: auto;
-      margin-top: 0;
-    }
-
-    /* ─── Footer ─────────────────────────────────────────────── */
-    footer {
+    /* ─── Rodapé ────────────────────────────────────────────── */
+    footer  {
       text-align: center;
-      padding: 1.5rem 1.25rem;
+      padding: 1.35rem 1.25rem;
+      border-top: 1px solid #E8EBF4;
       font-family: 'Cormorant Garamond', Georgia, serif;
       font-style: italic;
       font-size: 1rem;
       color: var(--muted);
-      border-top: 1px solid #E8EBF4;
+    }
+    @media (min-width: 560px)  {
+      .card-body,       .resultado  {
+        padding-left: 1.9rem;
+        padding-right: 1.9rem;
+      }
+      .botoes-duplos  {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    @media (prefers-reduced-motion: reduce)  {
+      *, *::before, *::after  {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+
+    .lista-doadores  {
+      list-style: none;
+      margin-top: .75rem;
+      padding-top: .7rem;
+      border-top: 1px solid var(--yellow-dark);
+      display: grid;
+      gap: .45rem;
+    }
+    .lista-doadores li  {
+      font-size: .82rem;
+      line-height: 1.45;
+      color: var(--ink);
+      overflow-wrap: anywhere;
+    }
+    .lista-doadores li strong  {
+      color: var(--blue);
+    }
+    .lista-doadores li span  {
+      color: var(--muted);
+    }
+    .lista-doadores-titulo  {
+      font-size: .72rem !important;
+      font-weight: 700;
+      color: #806500 !important;
+      text-transform: uppercase;
+      letter-spacing: .04em;
     }
   </style>
 </head>
 <body>
-
   <!-- CABEÇALHO -->
   <header class="site-header">
-    <h1 class="couple-names">Ana <span class="ampersand">&amp;</span> Carlo</h1>
-    <p class="wedding-date">14 de novembro de 2026</p>
-    <p class="wedding-tagline">Sua presença já é o maior presente — mas se quiser nos mimar…</p>
+    <h1 class="couple-names">
+      Ana <span class="ampersand">&amp;</span> Carlo
+    </h1>
+    <p class="wedding-date">14 de março de 2025</p>
+    <p class="wedding-tagline">
+      Sua presença já é o maior presente — mas se quiser nos mimar…
+    </p>
   </header>
 
-  <!-- CONTEÚDO PRINCIPAL -->
   <main>
     <div class="card">
       <!-- FORMULÁRIO -->
-      <div class="card-body" id="form-section">
-        <h2 class="card-title">Lista de presentes</h2>
-        <p class="card-subtitle">Diga qual presente vai trazer e garantimos que ninguém duplique — a não ser que você queira!</p>
+      <section class="card-body" id="form-section">
+        <h2 class="card-title">🎁 Lista de Presentes</h2>
+        <p class="card-subtitle">
+          Quer nos presentear? É bem simples: conte qual presente você pretende dar,
+          coloque seu nome e, se quiser, deixe uma mensagem para nós. ❤️
+        </p>
+
+        <div class="how-it-works">
+          <p class="how-title">COMO FUNCIONA?</p>
+          <ol class="steps">
+            <li class="step">
+              <span class="step-number">1</span>
+              <span>Escreva qual presente você pretende dar.</span>
+            </li>
+            <li class="step">
+              <span class="step-number">2</span>
+              <span>Coloque seu nome.</span>
+            </li>
+            <li class="step">
+              <span class="step-number">3</span>
+              <span>Deixe uma mensagem, se quiser.</span>
+            </li>
+            <li class="step">
+              <span class="step-number">4</span>
+              <span>Toque em <strong>Confirmar presente</strong>.</span>
+            </li>
+            <li class="step">
+              <span class="step-number">5</span>
+              <span>Vamos verificar se outra pessoa já escolheu o mesmo presente.</span>
+            </li>
+          </ol>
+        </div>
 
         <form id="form-presente" novalidate>
           <div class="field">
-            <label for="input-presente">Qual presente você quer dar?</label>
+            <label for="input-presente">1. O que você vai nos dar?</label>
             <input
               type="text"
               id="input-presente"
               name="presente"
-              placeholder="Ex.: Jogo de panelas, Air fryer…"
+              placeholder="Ex.: Air Fryer, jogo de panelas…"
               autocomplete="off"
               required
             />
+            <p class="field-help">
+              Pode escrever do seu jeito. Vamos verificar se existe algo parecido na lista.
+            </p>
           </div>
 
           <div class="field">
-            <label for="input-nome">Seu nome</label>
+            <label for="input-nome">2. Seu nome</label>
             <input
               type="text"
               id="input-nome"
               name="nome"
-              placeholder="Como você aparecerá na lista"
+              placeholder="Digite seu nome"
               required
             />
           </div>
 
           <div class="field">
             <label for="input-mensagem">
-              Mensagem para o casal
+              3. Mensagem
               <span class="optional-tag">(opcional)</span>
             </label>
             <textarea
@@ -507,122 +622,159 @@
           </div>
 
           <button type="submit" class="btn btn-primary" id="btn-verificar">
-            Verificar e continuar
+            🎁 Confirmar presente
           </button>
-        </form>
-      </div>
 
-      <!-- DIVIDER (oculto enquanto o resultado está escondido) -->
+          <p class="form-note">
+            Se o presente já estiver na lista, você poderá escolher outro
+            ou confirmar que deseja dar o mesmo.
+          </p>
+        </form>
+      </section>
+
+      <!-- DIVISOR -->
       <div class="card-divider" id="divider" style="display:none;"></div>
 
-      <!-- ESTADO: SUCESSO -->
-      <div class="resultado estado-sucesso" id="estado-sucesso" role="status" aria-live="polite">
-        <div class="success-icon" aria-hidden="true">✓</div>
-        <h2>Presente confirmado!</h2>
-        <div class="success-presente-nome" id="sucesso-presente-label"></div>
-        <p>
-          <strong id="sucesso-nome"></strong>, seu presente foi registrado com sucesso.
-          O casal vai adorar! 💙
-        </p>
-        <button class="btn btn-ghost" id="btn-novo-presente" type="button">
-          Escolher outro presente
-        </button>
-      </div>
+      <!-- SUCESSO -->
+      <section
+        class="resultado"
+        id="estado-sucesso"
+        role="status"
+        aria-live="polite"
+      >
+        <div class="result-icon success-icon" aria-hidden="true">✓</div>
+        <h2>Presente registrado! 🎉</h2>
+        <p id="sucesso-texto"></p>
+        <span class="success-presente-nome" id="sucesso-presente-label"></span>
+        <p>O casal vai adorar! 💙</p>
+        <div class="botoes-duplos" style="margin-top: 1.1rem;">
+          <button class="btn btn-ghost" id="btn-novo-presente" type="button">
+            🔄 Escolher outro presente
+          </button>
+        </div>
+      </section>
 
-      <!-- ESTADO: JÁ ESCOLHIDO -->
-      <div class="resultado estado-ja-escolhido" id="estado-ja-escolhido" role="status" aria-live="polite">
+      <!-- PRESENTE JÁ ESCOLHIDO -->
+      <section
+        class="resultado"
+        id="estado-ja-escolhido"
+        role="status"
+        aria-live="polite"
+      >
+        <div class="result-icon warning-icon" aria-hidden="true">!</div>
+        <h2>Esse presente já foi escolhido</h2>
+
         <div class="aviso-ja-escolhido">
-          <p class="aviso-label">Presente já na lista</p>
-          <p id="aviso-texto"></p>
+          <p class="aviso-label">Atenção</p>
+          <p id="aviso-texto">
+            Outra pessoa já informou que pretende dar:
+          </p>
+          <span class="presente-encontrado" id="presente-encontrado"></span>
           <ul class="lista-doadores" id="lista-doadores"></ul>
+          <p class="explicacao-duplicado">
+            Isso não impede você de dar o mesmo presente.
+            Se quiser evitar repetição, você pode escolher outra opção.
+          </p>
         </div>
-        <p>Você pode escolher outro presente ou confirmar que vai dar o mesmo mesmo assim.</p>
-        <div class="botoes-duplos">
-          <button class="btn btn-ghost" id="btn-escolher-outro" type="button">
-            Escolher outro presente
-          </button>
-          <button class="btn btn-secondary" id="btn-dar-mesmo-assim" type="button">
-            Quero dar esse também
-          </button>
-        </div>
-      </div>
 
-      <!-- ESTADO: ERRO -->
-      <div class="resultado estado-erro" id="estado-erro" role="alert" aria-live="assertive">
-        <div class="erro-icon">⚠️</div>
-        <h2>Algo deu errado</h2>
-        <p>Não conseguimos conectar à lista de presentes agora. Verifique sua conexão e tente de novo.</p>
-        <button class="btn btn-primary" id="btn-tentar-novamente" type="button">
+        <div class="botoes-duplos">
+          <button class="btn btn-secondary" id="btn-dar-mesmo-assim" type="button">
+            🎁 Quero dar este presente mesmo assim
+          </button>
+          <button class="btn btn-ghost" id="btn-escolher-outro" type="button">
+            🔄 Escolher outro presente
+          </button>
+        </div>
+      </section>
+
+      <!-- ERRO -->
+      <section
+        class="resultado estado-erro"
+        id="estado-erro"
+        role="alert"
+        aria-live="assertive"
+      >
+        <div class="result-icon error-icon" aria-hidden="true">!</div>
+        <h2>Não foi possível continuar</h2>
+        <p>
+          Não conseguimos verificar a lista de presentes agora.
+          Verifique sua conexão com a internet e tente novamente.
+        </p>
+        <button
+          class="btn btn-primary"
+          id="btn-tentar-novamente"
+          type="button"
+          style="margin-top:0;"
+        >
           Tentar novamente
         </button>
-      </div>
+      </section>
     </div>
   </main>
 
-  <!-- RODAPÉ -->
   <footer>
     Obrigado por fazer parte desse dia tão especial ♡
   </footer>
 
-  <!-- Supabase JS v2 (CDN) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 
   <script>
-    /* ─────────────────────────────────────────────────────────
-       CONFIGURAÇÃO — cole suas chaves aqui
-    ──────────────────────────────────────────────────────────── */
-    const SUPABASE_URL      = 'https://snpvswyighlfimpodhpz.supabase.co';  // ← substitua
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNucHZzd3lpZ2hsZmltcG9kaHB6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0ODIzODMsImV4cCI6MjEwNzA1ODM4M30.XnMNHp5z1vRRAAZpVOj6I2SnvYGWLcCSe5Y-mP3wVug';                   // ← substitua
+    /* CONFIGURAÇÃO — valores preservados do index atual */
+    const SUPABASE_URL = 'https://snpvswyighlfimpodhpz.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNucHZzd3lpZ2hsZmltcG9kaHB6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0ODIzODMsImV4cCI6MjEwNzA1ODM4M30.XnMNHp5z1vRRAAZpVOj6I2SnvYGWLcCSe5Y-mP3wVug';
 
-    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabaseClient = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_ANON_KEY
+    );
 
-    /* ─── Normalização ───────────────────────────────────────── */
+    /* Normalização */
     function normalizar(str) {
       return str
         .trim()
         .toLowerCase()
         .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')   // remove acentos
-        .replace(/\s+/g, ' ');             // colapsa espaços
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/\s+/g, ' ');
     }
 
-    /* ─── Referências do DOM ─────────────────────────────────── */
-    const form           = document.getElementById('form-presente');
-    const inputPresente  = document.getElementById('input-presente');
-    const inputNome      = document.getElementById('input-nome');
-    const inputMensagem  = document.getElementById('input-mensagem');
-    const btnVerificar   = document.getElementById('btn-verificar');
-    const divider        = document.getElementById('divider');
+    /* Referências do DOM */
+    const form = document.getElementById('form-presente');
+    const inputPresente = document.getElementById('input-presente');
+    const inputNome = document.getElementById('input-nome');
+    const inputMensagem = document.getElementById('input-mensagem');
+    const btnVerificar = document.getElementById('btn-verificar');
+    const divider = document.getElementById('divider');
 
-    const estadoSucesso      = document.getElementById('estado-sucesso');
-    const estadoJaEscolhido  = document.getElementById('estado-ja-escolhido');
-    const estadoErro         = document.getElementById('estado-erro');
+    const estadoSucesso = document.getElementById('estado-sucesso');
+    const estadoJaEscolhido = document.getElementById('estado-ja-escolhido');
+    const estadoErro = document.getElementById('estado-erro');
 
-    const sucessoNome         = document.getElementById('sucesso-nome');
+    const sucessoTexto = document.getElementById('sucesso-texto');
     const sucessoPresenteLabel = document.getElementById('sucesso-presente-label');
-    const avisoTexto      = document.getElementById('aviso-texto');
-    const listaDoadores   = document.getElementById('lista-doadores');
+    const presenteEncontrado = document.getElementById('presente-encontrado');
+    const listaDoadores = document.getElementById('lista-doadores');
 
-    const btnNovo          = document.getElementById('btn-novo-presente');
+    const btnNovo = document.getElementById('btn-novo-presente');
     const btnEscolherOutro = document.getElementById('btn-escolher-outro');
     const btnDarMesmoAssim = document.getElementById('btn-dar-mesmo-assim');
     const btnTentarNovamente = document.getElementById('btn-tentar-novamente');
 
-    /* ─── Estado interno ─────────────────────────────────────── */
-    let dadosPendentes = null;  // dados do formulário guardados para "dar mesmo assim"
+    /* Estado interno */
+    let dadosPendentes = null;
 
-    /* ─── Utilitários de UI ──────────────────────────────────── */
+    /* Controle dos resultados — comportamento preservado do index atual */
     function mostrarResultado(id) {
       [estadoSucesso, estadoJaEscolhido, estadoErro].forEach(el => {
         el.classList.remove('visible');
         el.style.display = 'none';
       });
+
       divider.style.display = 'none';
 
       if (id) {
         const el = document.getElementById(id);
         el.style.display = 'block';
-        // força reflow para a animação funcionar
         void el.offsetWidth;
         el.classList.add('visible');
         divider.style.display = 'block';
@@ -635,7 +787,7 @@
         btnVerificar.innerHTML = '<span class="spinner" aria-hidden="true"></span> Verificando…';
       } else {
         btnVerificar.disabled = false;
-        btnVerificar.innerHTML = 'Verificar e continuar';
+        btnVerificar.innerHTML = '🎁 Confirmar presente';
       }
     }
 
@@ -647,47 +799,56 @@
       dadosPendentes = null;
     }
 
-    /* ─── Monta o aviso de "já escolhido": frase do 1º + lista do resto ─ */
+    /* Exibe os presentes parecidos e os convidados retornados pelo Supabase */
     function preencherAvisoJaEscolhido(data) {
-      const [primeiro, ...resto] = data;
-
-      avisoTexto.textContent = `${primeiro.nome_convidado} já disse que vai dar ${primeiro.presente}.`;
-
+      const primeiro = data[0];
+      presenteEncontrado.textContent = primeiro.presente;
       listaDoadores.innerHTML = '';
-      if (resto.length > 0) {
-        const titulo = document.createElement('li');
-        titulo.className = 'lista-doadores-titulo';
-        titulo.textContent = resto.length === 1
-          ? 'E mais 1 pessoa escolheu algo parecido:'
-          : `E mais ${resto.length} pessoas escolheram algo parecido:`;
-        listaDoadores.appendChild(titulo);
 
-        resto.forEach(({ nome_convidado, presente }) => {
-          const li = document.createElement('li');
-          const nome = document.createElement('strong');
-          nome.textContent = nome_convidado;
-          const texto = document.createElement('span');
-          texto.textContent = ` — ${presente}`;
-          li.append(nome, texto);
-          listaDoadores.appendChild(li);
-        });
-      }
+      const titulo = document.createElement('li');
+      titulo.className = 'lista-doadores-titulo';
+      titulo.textContent = data.length === 1
+        ? 'Convidado que já escolheu:'
+        : 'Convidados que já escolheram:';
+      listaDoadores.appendChild(titulo);
+
+      data.forEach(({ nome_convidado, presente }) => {
+        const li = document.createElement('li');
+        const nome = document.createElement('strong');
+        nome.textContent = nome_convidado;
+        const texto = document.createElement('span');
+        texto.textContent = ` — ${presente}`;
+        li.append(nome, texto);
+        listaDoadores.appendChild(li);
+      });
     }
 
-    /* ─── Inserção no Supabase ───────────────────────────────── */
+    /* Inserção no Supabase */
     async function inserirPresente({ presente, presente_normalizado, nome_convidado, mensagem }) {
       const { error } = await supabaseClient
         .from('presentes')
-        .insert([{ presente, presente_normalizado, nome_convidado, mensagem: mensagem || null }]);
+        .insert([{
+          presente,
+          presente_normalizado,
+          nome_convidado,
+          mensagem: mensagem || null
+        }]);
+
       if (error) throw error;
     }
 
-    /* ─── Submit do formulário ───────────────────────────────── */
+    function mostrarSucesso(nome, presente) {
+      sucessoTexto.textContent = `${nome}, seu presente foi registrado com sucesso.`;
+      sucessoPresenteLabel.textContent = presente;
+      mostrarResultado('estado-sucesso');
+    }
+
+    /* Envio do formulário */
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
       const presente = inputPresente.value.trim();
-      const nome     = inputNome.value.trim();
+      const nome = inputNome.value.trim();
       const mensagem = inputMensagem.value.trim();
 
       if (!presente || !nome) {
@@ -699,24 +860,30 @@
       const presente_normalizado = normalizar(presente);
 
       setLoading(true);
+
       try {
-        // Busca se alguém já escolheu um presente parecido com esse (correspondência aproximada)
         const { data, error } = await supabaseClient
           .rpc('buscar_presente_parecido', { termo: presente_normalizado });
 
         if (error) throw error;
 
         if (data && data.length > 0) {
-          // Presente já escolhido (por uma ou mais pessoas)
           preencherAvisoJaEscolhido(data);
-          dadosPendentes = { presente, presente_normalizado, nome_convidado: nome, mensagem };
+          dadosPendentes = {
+            presente,
+            presente_normalizado,
+            nome_convidado: nome,
+            mensagem
+          };
           mostrarResultado('estado-ja-escolhido');
         } else {
-          // Presente livre — insere direto
-          await inserirPresente({ presente, presente_normalizado, nome_convidado: nome, mensagem });
-          sucessoNome.textContent = nome;
-          sucessoPresenteLabel.textContent = presente;
-          mostrarResultado('estado-sucesso');
+          await inserirPresente({
+            presente,
+            presente_normalizado,
+            nome_convidado: nome,
+            mensagem
+          });
+          mostrarSucesso(nome, presente);
         }
       } catch (err) {
         console.error('Erro Supabase:', err);
@@ -726,13 +893,13 @@
       }
     });
 
-    /* ─── Botão: Escolher outro presente (sucesso) ───────────── */
+    /* Escolher outro presente após o registro */
     btnNovo.addEventListener('click', () => {
       resetForm(false);
       inputPresente.focus();
     });
 
-    /* ─── Botão: Escolher outro presente (já escolhido) ─────── */
+    /* Escolher outro presente após detectar duplicidade */
     btnEscolherOutro.addEventListener('click', () => {
       inputPresente.value = '';
       mostrarResultado(null);
@@ -740,7 +907,7 @@
       inputPresente.focus();
     });
 
-    /* ─── Botão: Dar esse presente também ───────────────────── */
+    /* Confirmar que deseja dar o mesmo presente */
     btnDarMesmoAssim.addEventListener('click', async () => {
       if (!dadosPendentes) return;
 
@@ -750,20 +917,21 @@
 
       try {
         await inserirPresente(dadosPendentes);
-        sucessoNome.textContent = dadosPendentes.nome_convidado;
-        sucessoPresenteLabel.textContent = dadosPendentes.presente;
-        mostrarResultado('estado-sucesso');
+        mostrarSucesso(
+          dadosPendentes.nome_convidado,
+          dadosPendentes.presente
+        );
       } catch (err) {
         console.error('Erro Supabase:', err);
         mostrarResultado('estado-erro');
       } finally {
         btnDarMesmoAssim.disabled = false;
         btnEscolherOutro.disabled = false;
-        btnDarMesmoAssim.innerHTML = 'Quero dar esse também';
+        btnDarMesmoAssim.innerHTML = '🎁 Quero dar este presente mesmo assim';
       }
     });
 
-    /* ─── Botão: Tentar novamente ────────────────────────────── */
+    /* Tentar novamente após um erro */
     btnTentarNovamente.addEventListener('click', () => {
       mostrarResultado(null);
       inputPresente.focus();
