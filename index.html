@@ -9,65 +9,117 @@
   ╔══════════════════════════════════════════════════════════════╗
   ║  CONFIGURAÇÃO — edite antes de publicar                      ║
   ╠══════════════════════════════════════════════════════════════╣
-  ║  1. Cole sua SUPABASE_URL e SUPABASE_ANON_KEY abaixo        ║
+  ║  1. API_URL já configurada (Funnel na 443):                  ║
+  ║     https://debianserver.tail873135.ts.net                   ║
   ║  2. Troque os nomes dos noivos (busque "Ana & Carlo")        ║
   ║  3. Troque a data do casamento (busque "14 de março de 2025") ║
   ╠══════════════════════════════════════════════════════════════╣
-  ║  SQL para criar a tabela no Supabase:                        ║
-  ║                                                              ║
-  ║  create table presentes (                                    ║
-  ║    id uuid primary key default gen_random_uuid(),            ║
-  ║    presente text not null,                                   ║
-  ║    presente_normalizado text not null,                       ║
-  ║    nome_convidado text not null,                             ║
-  ║    mensagem text,                                            ║
-  ║    created_at timestamptz not null default now()             ║
-  ║  );                                                          ║
-  ║                                                              ║
-  ║  create index idx_presente_normalizado                       ║
-  ║    on presentes (presente_normalizado);                      ║
-  ║                                                              ║
-  ║  alter table presentes enable row level security;            ║
-  ║                                                              ║
-  ║  create policy "qualquer um pode ver os presentes"           ║
-  ║    on presentes for select using (true);                     ║
-  ║                                                              ║
-  ║  create policy "qualquer um pode inserir um presente"        ║
-  ║    on presentes for insert with check (true);                ║
-  ╠══════════════════════════════════════════════════════════════╣
-  ║  SQL para correspondência aproximada (ex.: "panelas" casa     ║
-  ║  com "jogo de panelas"). Rode isso TAMBÉM no SQL Editor:      ║
-  ║                                                              ║
-  ║  create extension if not exists pg_trgm;                      ║
-  ║                                                              ║
-  ║  create index idx_presente_trgm                              ║
-  ║    on presentes using gin (presente_normalizado gin_trgm_ops);║
-  ║                                                              ║
-  ║  create or replace function buscar_presente_parecido(termo text)║
-  ║  returns table (presente text, nome_convidado text, similaridade real)║
-  ║  language sql stable as $$                                   ║
-  ║    select presente, nome_convidado,                           ║
-  ║           greatest(                                           ║
-  ║             similarity(presente_normalizado, termo),          ║
-  ║             word_similarity(termo, presente_normalizado)      ║
-  ║           ) as similaridade                                   ║
-  ║    from presentes                                             ║
-  ║    where presente_normalizado ilike '%' || termo || '%'       ║
-  ║       or termo ilike '%' || presente_normalizado || '%'       ║
-  ║       or word_similarity(termo, presente_normalizado) > 0.5   ║
-  ║    order by similaridade desc, created_at asc                ║
-  ║    limit 20;                                                  ║
-  ║  $$;                                                          ║
-  ║                                                              ║
-  ║  grant execute on function buscar_presente_parecido(text)    ║
-  ║    to anon;                                                   ║
-  ║                                                              ║
-  ║  word_similarity testa se o termo bate bem com UM PEDAÇO     ║
-  ║  do presente salvo (não a string toda) — funciona melhor     ║
-  ║  pra termos curtos tipo "mesa", "boi", "ps5" sem precisar    ║
-  ║  bloquear busca curta. 0.5 = sensibilidade dessa parte;      ║
-  ║  mais alto = mais exigente, mais baixo = mais solto.         ║
+  ║  NÃO HÁ MAIS CHAVE DE API NESTE ARQUIVO.                     ║
+  ║  O acesso é o papel anônimo (web_anon) do próprio PostgREST.  ║
   ╚══════════════════════════════════════════════════════════════╝
+
+  ────────────────────────────────────────────────────────────────
+  SQL — rode como postgres no banco appdb:
+      su postgres -c "psql -d appdb"
+  ────────────────────────────────────────────────────────────────
+
+  create extension if not exists pg_trgm;
+
+  create table api.presentes (
+    id uuid primary key default gen_random_uuid(),
+    presente text not null,
+    presente_normalizado text not null,
+    nome_convidado text not null,
+    mensagem text,
+    created_at timestamptz not null default now()
+  );
+
+  create index idx_presente_normalizado
+    on api.presentes (presente_normalizado);
+
+  create index idx_presente_trgm
+    on api.presentes using gin (presente_normalizado gin_trgm_ops);
+
+  ── Busca aproximada ("panelas" casa com "jogo de panelas") ─────
+  -- security definer: web_anon NÃO precisa de SELECT na tabela.
+  create or replace function api.buscar_presente_parecido(termo text)
+  returns table (presente text, nome_convidado text, similaridade real)
+  language sql
+  stable
+  security definer
+  set search_path = api, public
+  as $$
+    select p.presente,
+           p.nome_convidado,
+           greatest(
+             similarity(p.presente_normalizado, termo),
+             word_similarity(termo, p.presente_normalizado)
+           )::real as similaridade
+    from api.presentes p
+    where p.presente_normalizado ilike '%' || termo || '%'
+       or termo ilike '%' || p.presente_normalizado || '%'
+       or word_similarity(termo, p.presente_normalizado) > 0.5
+    order by similaridade desc, p.created_at asc
+    limit 20;
+  $$;
+
+  ── Registro do presente ────────────────────────────────────────
+  -- Também security definer. web_anon pode chamar, mas não pode
+  -- ler, alterar nem apagar a tabela — só inserir por aqui.
+  create or replace function api.registrar_presente(
+    p_presente             text,
+    p_presente_normalizado text,
+    p_nome_convidado       text,
+    p_mensagem             text default null
+  )
+  returns void
+  language plpgsql
+  volatile
+  security definer
+  set search_path = api, public
+  as $$
+  begin
+    if coalesce(btrim(p_presente), '') = ''
+       or coalesce(btrim(p_nome_convidado), '') = '' then
+      raise exception 'presente e nome são obrigatórios';
+    end if;
+
+    insert into api.presentes
+      (presente, presente_normalizado, nome_convidado, mensagem)
+    values (
+      left(btrim(p_presente), 200),
+      left(btrim(p_presente_normalizado), 200),
+      left(btrim(p_nome_convidado), 120),
+      nullif(left(btrim(coalesce(p_mensagem, '')), 1000), '')
+    );
+  end;
+  $$;
+
+  ── Permissões: apenas EXECUTE nas duas funções ─────────────────
+  revoke all on api.presentes from web_anon;
+
+  grant execute on function
+    api.buscar_presente_parecido(text) to web_anon;
+  grant execute on function
+    api.registrar_presente(text, text, text, text) to web_anon;
+
+  notify pgrst, 'reload schema';
+
+  ────────────────────────────────────────────────────────────────
+  Para você ver a lista completa (do servidor, não do navegador):
+      su postgres -c "psql -d appdb -c \
+        'select created_at, nome_convidado, presente, mensagem \
+         from api.presentes order by created_at'"
+  ────────────────────────────────────────────────────────────────
+
+  CORS: o PostgREST já responde Access-Control-Allow-Origin: *.
+  Se o site for servido de outro domínio e o navegador reclamar,
+  confira journalctl -u postgrest.
+
+  word_similarity testa se o termo bate bem com UM PEDAÇO do
+  presente salvo (não a string toda) — funciona melhor pra termos
+  curtos tipo "mesa", "boi", "ps5". 0.5 = sensibilidade dessa
+  parte; mais alto = mais exigente, mais baixo = mais solto.
   -->
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -591,6 +643,7 @@
               name="presente"
               placeholder="Ex.: Air Fryer, jogo de panelas…"
               autocomplete="off"
+              maxlength="200"
               required
             />
             <p class="field-help">
@@ -605,6 +658,7 @@
               id="input-nome"
               name="nome"
               placeholder="Digite seu nome"
+              maxlength="120"
               required
             />
           </div>
@@ -617,6 +671,7 @@
             <textarea
               id="input-mensagem"
               name="mensagem"
+              maxlength="1000"
               placeholder="Um carinho, um desejo…"
             ></textarea>
           </div>
@@ -700,6 +755,7 @@
           Não conseguimos verificar a lista de presentes agora.
           Verifique sua conexão com a internet e tente novamente.
         </p>
+        <p class="erro-detalhe" id="erro-detalhe"></p>
         <button
           class="btn btn-primary"
           id="btn-tentar-novamente"
@@ -716,17 +772,64 @@
     Obrigado por fazer parte desse dia tão especial ♡
   </footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-
   <script>
-    /* CONFIGURAÇÃO — valores preservados do index atual */
-    const SUPABASE_URL = 'https://snpvswyighlfimpodhpz.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNucHZzd3lpZ2hsZmltcG9kaHB6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0ODIzODMsImV4cCI6MjEwNzA1ODM4M30.XnMNHp5z1vRRAAZpVOj6I2SnvYGWLcCSe5Y-mP3wVug';
+    /* ═══════════════════════════════════════════════════════════
+       CONFIGURAÇÃO — URL do PostgREST publicado pelo Tailscale
+       Funnel. Sem barra no final. Nenhuma chave secreta aqui:
+       o acesso é o papel anônimo web_anon do próprio PostgREST.
+       ═══════════════════════════════════════════════════════════ */
+    const API_URL = 'https://debianserver.tail873135.ts.net';
 
-    const supabaseClient = window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_ANON_KEY
-    );
+    /* Quanto tempo esperar o servidor antes de desistir (ms) */
+    const TIMEOUT_MS = 12000;
+
+    /* ─── Cliente HTTP mínimo para o PostgREST ──────────────── */
+
+    /* Chama uma função do schema api via POST /rpc/<nome>.
+       Retorna o JSON já convertido. Lança Error em falha. */
+    async function rpc(nome, params) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+
+      let resposta;
+      try {
+        resposta = await fetch(`${API_URL}/rpc/${nome}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(params),
+          signal: controller.signal
+        });
+      } catch (err) {
+        clearTimeout(timer);
+        if (err.name === 'AbortError') {
+          throw new Error('O servidor não respondeu a tempo.');
+        }
+        throw new Error('Não foi possível alcançar o servidor.');
+      }
+      clearTimeout(timer);
+
+      /* PostgREST devolve o erro como JSON com message/details/hint */
+      if (!resposta.ok) {
+        let detalhe = `HTTP ${resposta.status}`;
+        try {
+          const corpo = await resposta.json();
+          if (corpo && corpo.message) detalhe = corpo.message;
+        } catch (_) { /* corpo não era JSON */ }
+        throw new Error(detalhe);
+      }
+
+      /* registrar_presente retorna void → corpo vazio */
+      const texto = await resposta.text();
+      if (!texto) return null;
+      try {
+        return JSON.parse(texto);
+      } catch (_) {
+        return null;
+      }
+    }
 
     /* Normalização */
     function normalizar(str) {
@@ -734,7 +837,7 @@
         .trim()
         .toLowerCase()
         .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[̀-ͯ]/g, '')
         .replace(/\s+/g, ' ');
     }
 
@@ -754,6 +857,7 @@
     const sucessoPresenteLabel = document.getElementById('sucesso-presente-label');
     const presenteEncontrado = document.getElementById('presente-encontrado');
     const listaDoadores = document.getElementById('lista-doadores');
+    const erroDetalhe = document.getElementById('erro-detalhe');
 
     const btnNovo = document.getElementById('btn-novo-presente');
     const btnEscolherOutro = document.getElementById('btn-escolher-outro');
@@ -763,7 +867,7 @@
     /* Estado interno */
     let dadosPendentes = null;
 
-    /* Controle dos resultados — comportamento preservado do index atual */
+    /* Controle dos resultados */
     function mostrarResultado(id) {
       [estadoSucesso, estadoJaEscolhido, estadoErro].forEach(el => {
         el.classList.remove('visible');
@@ -779,6 +883,12 @@
         el.classList.add('visible');
         divider.style.display = 'block';
       }
+    }
+
+    function mostrarErro(err) {
+      console.error('Erro na API:', err);
+      erroDetalhe.textContent = err && err.message ? err.message : '';
+      mostrarResultado('estado-erro');
     }
 
     function setLoading(isLoading) {
@@ -799,7 +909,7 @@
       dadosPendentes = null;
     }
 
-    /* Exibe os presentes parecidos e os convidados retornados pelo Supabase */
+    /* Exibe os presentes parecidos e os convidados retornados pela API */
     function preencherAvisoJaEscolhido(data) {
       const primeiro = data[0];
       presenteEncontrado.textContent = primeiro.presente;
@@ -823,18 +933,14 @@
       });
     }
 
-    /* Inserção no Supabase */
+    /* Inserção via função api.registrar_presente */
     async function inserirPresente({ presente, presente_normalizado, nome_convidado, mensagem }) {
-      const { error } = await supabaseClient
-        .from('presentes')
-        .insert([{
-          presente,
-          presente_normalizado,
-          nome_convidado,
-          mensagem: mensagem || null
-        }]);
-
-      if (error) throw error;
+      await rpc('registrar_presente', {
+        p_presente: presente,
+        p_presente_normalizado: presente_normalizado,
+        p_nome_convidado: nome_convidado,
+        p_mensagem: mensagem || null
+      });
     }
 
     function mostrarSucesso(nome, presente) {
@@ -862,12 +968,11 @@
       setLoading(true);
 
       try {
-        const { data, error } = await supabaseClient
-          .rpc('buscar_presente_parecido', { termo: presente_normalizado });
+        const data = await rpc('buscar_presente_parecido', {
+          termo: presente_normalizado
+        });
 
-        if (error) throw error;
-
-        if (data && data.length > 0) {
+        if (Array.isArray(data) && data.length > 0) {
           preencherAvisoJaEscolhido(data);
           dadosPendentes = {
             presente,
@@ -886,8 +991,7 @@
           mostrarSucesso(nome, presente);
         }
       } catch (err) {
-        console.error('Erro Supabase:', err);
-        mostrarResultado('estado-erro');
+        mostrarErro(err);
       } finally {
         setLoading(false);
       }
@@ -922,8 +1026,7 @@
           dadosPendentes.presente
         );
       } catch (err) {
-        console.error('Erro Supabase:', err);
-        mostrarResultado('estado-erro');
+        mostrarErro(err);
       } finally {
         btnDarMesmoAssim.disabled = false;
         btnEscolherOutro.disabled = false;
